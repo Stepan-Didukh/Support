@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            width: 7rem;
+            height: 2.5rem;
+            background: #136c5e;
+            border-radius: 0.2rem;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .btn:hover {
+            background: #16a697;
+        }
+
+        .message {
+            height: 2.5rem;
+            width: 25rem;
+            border-radius: 0.2rem;
+            border: 1px solid #136c5e;
+            background: #16a697;
+            font-size: 1.2rem;
+            color: white;
+            padding-left: 1rem;
+        }
+
+        .textAlign {
+            text-align: center;
+            width:auto;
+            margin-top: 1rem;
+        }
+
+        .Joinroom
+        {
+            width: 10rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="textAlign">
+    <button onclick="Joinroom()" class="btn Joinroom">Join room</button>
+    <button onclick="btn_to_room()" class="btn">Sent in room</button>
+
+    <input type="text" id="text_to_room" class="message" placeholder="Write a message in room...">
+    <button onclick="btn()" class="btn">Sent</button>
+    <input type="text" id="text" class="message" placeholder="Write a message ...">
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+
+    const text  = document.getElementById('text');
+    const  text_to_room = document.getElementById('text_to_room')
+
+    let room_id;
+
+    function btn() {
+        socket.emit('message', text.value );
+        text.value = "";
+    }
+
+    function Joinroom(){
+        room_id = btn_to_room.value;
+        socket.emit('Joinroom', {room_id});
+    }
+
+    function btn_to_room(){
+        room_id = btn_to_room.value;
+        socket.emit('msg', {data: text_to_room.value, room_id});
+        text_to_room.value = '';
+    }
+
+    socket.on('respMessage', resp => {
+
+        const UserName = document.createElement('div');
+        UserName.innerText = `${resp.id}`;
+        UserName.style.height = `1.2rem`;
+        UserName.style.width = `20rem`;
+        UserName.style.color = `black`;
+        UserName.style.marginLeft = `16rem`;
+        UserName.style.marginBottom = `0.2rem`;
+        UserName.style.marginTop = `0.2rem`;
+
+        const Message = document.createElement('div');
+        Message.innerText = `${resp.data}`;
+        Message.style.background = `#136c5e`;
+        Message.style.width = `auto`;
+        Message.style.height = `2rem`;
+        Message.style.fontSize = `1.5rem`;
+        Message.style.borderRadius = `1rem`;
+        Message.style.textAlign = `center`;
+
+        document.body.appendChild(UserName);
+        document.body.appendChild(Message);
+        console.log(resp.data)
+    });
+
+    socket.on('user_disk', disk=>{
+
+        const Disk = document.createElement('div');
+        Disk.innerText = `${disk.id} - disconnect`;
+        Disk.style.background = `#b33a46`;
+        Disk.style.width= `auto`;
+        Disk.style.height = `2rem`;
+        Disk.style.fontSize = `1.5rem`;
+        Disk.style.textAlign = `center`;
+        Disk.style.marginTop = `1rem`;
+        Disk.style.borderRadius = `1rem`
+
+        document.body.appendChild(Disk);
+    });
+
+    socket.on('msg_resp', msg =>{
+        const UserRoom = document.createElement('div');
+        UserRoom.innerText = `${msg.id}`;
+        UserRoom.style.height = `1.2rem`;
+        UserRoom.style.width = `20rem`;
+        UserRoom.style.color = `black`;
+        UserRoom.style.marginLeft = `16rem`;
+        UserRoom.style.marginBottom = `0.2rem`;
+        UserRoom.style.marginTop = `0.2rem`;
+
+
+        const RoomMessage = document.createElement('div');
+        RoomMessage.innerText = `${msg.data}`;
+        RoomMessage.style.background = `yellow`;
+        RoomMessage.style.width = `auto`;
+        RoomMessage.style.height = `2rem`;
+        RoomMessage.style.fontSize = `1.5rem`;
+        RoomMessage.style.borderRadius = `1rem`;
+        RoomMessage.style.textAlign = `center`;
+
+        document.body.appendChild(UserRoom);
+        document.body.appendChild(RoomMessage);
+    })
+</script>
+</body>
+</html>
